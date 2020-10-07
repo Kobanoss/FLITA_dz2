@@ -6,16 +6,16 @@ int main(void){
 
 	int bg = -1;
 	while ((bg != 1) && (bg != 0)){
-	printf("0 - for graph\n");
-	printf("1 - for digraph\n");
-	scanf("%d", &bg);
+		printf("0 - for graph\n");
+		printf("1 - for digraph\n");
+		scanf("%d", &bg);
 	}
 
 	int n;
 	printf("Num of elements: ");
 	scanf("%d", &n);
 
-	while(n < 0){
+	while (n < 0){
         printf("Num > 0 !\n");
         scanf("%d",&n);
         printf("\n");
@@ -34,7 +34,7 @@ int main(void){
 
 	for (int i = 0; i < n; i++){
 		printf("#%d ", i + 1);
-		char *s = malloc(20 * sizeof(char));
+		char *s = (char*) malloc(20 * sizeof(char));
 		scanf("%s", s);
 		names[i] = s;
 	}
@@ -51,19 +51,19 @@ int main(void){
 		printf("#%d: %s\n", i + 1, names[i]);
 		_Bool flag = 1;
 
-		while(flag){
-			char* cmp_sting = malloc(20 * sizeof(char));
+		while (flag){
+			char* cmp_sting = (char*) malloc(20 * sizeof(char));
 			scanf("%s", cmp_sting);
 
-			for(int j = 0; j < n; j++){
+			for (int j = 0; j < n; j++){
 				if (strcmp(names[j], cmp_sting) == 0){
 					mtx[i][j]++;
-					if(bg == 0){
+					if (bg == 0){
 						mtx[j][i]++;
 					}
 				}
 			}
-			if(strcmp(cmp_sting, ";") == 0){
+			if (strcmp(cmp_sting, ";") == 0){
 				flag = 0;
 			}
 			free(cmp_sting);
@@ -74,13 +74,13 @@ int main(void){
 	// проверка на связанность графа (крест)
 
 	_Bool goriz = 1;
-	for(int i = 0; i < n; i++){
+	for (int i = 0; i < n; i++){
 		_Bool vertic = 0;
-		for(int j = 0; j < n; j++){
-			if(mtx[i][j] > 0)
+		for (int j = 0; j < n; j++){
+			if (mtx[i][j] > 0)
 				vertic = 1;
 
-			if(mtx[j][i] > 0)
+			if (mtx[j][i] > 0)
 				vertic = 1;
 		}
 		if (vertic == 0)
@@ -93,21 +93,24 @@ int main(void){
 		printf("Related graph\n");
 	}
 
-	for(int i = 0; i < n; i++){
+	for (int i = 0; i < n; i++){
 		printf("#%d %10s: ", i + 1, names[i]);
-			for(int k = 0; k < n; k++){
+			for (int k = 0; k < n; k++){
 				printf("%d ", mtx[i][k]);
 			}
 			printf("\n");
 	}
 
-	char* arr = calloc(500, sizeof(char));
+// запись на языке DOT
+
+	char* arr = (char*) calloc(500, sizeof(char));
+
 	if(bg == 1){
-		strcat(arr, "echo \"digraph G {");
-		for(int i = 0; i < n; i++){
-		for(int j = 0; j < n; j++){
-			if(mtx[i][j] == 1){
-				for(int a = 0; a < mtx[i][j]; a++){
+		strcat(arr, "digraph G {");
+		for (int i = 0; i < n; i++){
+		for (int j = 0; j < n; j++){
+			if (mtx[i][j] > 0){
+				for (int a = 0; a < mtx[i][j]; a++){
 					strcat(arr, names[i]);
 					strcat(arr, "->");
 					strcat(arr, names[j]);
@@ -118,15 +121,15 @@ int main(void){
 	}
 	}
 	else {
-		strcat(arr, "echo \"graph G {");
-		for(int i = 0; i < n; i++){
+		strcat(arr, "graph G {");
+		for (int i = 0; i < n; i++){
 			strcat(arr, names[i]);
 			strcat(arr, ";");
 		}
-		for(int i = 0; i < n; i++){
-			for(int j = i; j < n; j++){
-				if(mtx[i][j] == 1){
-					for(int a = 0; a < mtx[i][j]; a++){
+		for (int i = 0; i < n; i++){
+			for (int j = i; j < n; j++){
+				if (mtx[i][j] > 0){
+					for (int a = 0; a < mtx[i][j]; a++){
 						strcat(arr, names[i]);
 						strcat(arr, "--");
 						strcat(arr, names[j]);
@@ -137,10 +140,20 @@ int main(void){
 		}
 		}
 
+	strcat(arr, "}");
 
-	strcat(arr, "}\" | dot -Tpng >./graph_pikcha.png");
-	printf("%s\n", arr);
-	system(arr);
+	FILE* f = fopen("graph.dot", "w");
+	fprintf(f, "%s\n", arr);
+	fclose(f);
+
+	char* term = (char*) calloc(500, sizeof(char));
+
+	strcat(term, "echo \"");
+	strcat(term, arr);
+
+	strcat(term, "\" | dot -Tpng >./graph_pikcha.png");
+	system(term);
+	free(term);
 	free(arr);
 
 	return 0;
