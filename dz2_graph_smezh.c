@@ -152,6 +152,7 @@ int main(void){
 	strcat(term, arr);
 
 	strcat(term, "\" | dot -Tpng >./graph_pikcha.png");
+	printf("%s\n", term);
 	system(term);
 	free(term);
 	free(arr);
